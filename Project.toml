@@ -1,0 +1,8 @@
+name = "Biohistoria"
+uuid = "e6f2ad26-3fbe-4574-9416-0f7d73676c64"
+authors = ["Yu-Chang YANG <yang.yc.allium@gmail.com>"]
+version = "0.0.1"
+
+[deps]
+Entropics = "14a948c2-867d-4473-9685-8fa9f340b513"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
