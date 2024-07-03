@@ -1,4 +1,4 @@
-# example/taiwan/larjpint.jl
+# example/levatai/larjpint.jl
 
 using Biohistoria
 using DelimitedFiles
