@@ -1,9 +1,9 @@
 # example/levatai/larjpint.jl
 
-using Biohistoria
-using DelimitedFiles
-using JointPoint
-using ZipFile
+using Biohistoria    # 0.0.1
+using DelimitedFiles # 1.10.2
+using JointPoint     # 0.0.5
+using ZipFile        # 0.10.1
 
 const x = 0:0.01:10
 const kk = 0:3

@@ -1,12 +1,12 @@
 # example/levatai/fig4.jl
 
-using Dates
-using DelimitedFiles
+using Dates          # 1.10.2
+using DelimitedFiles # 1.10.2
 using Distributions  # 0.25.109
 using GeoInterface   # 1.3.5
 using LibGEOS        # 0.9.2
-using Printf
-using PyPlot         # 2.11.2
+using Printf         # 1.10.2
+using PyPlot         # 2.11.2, Python 3.12.3, MatPlotLib 3.8.4
 
 file(pathcomp...) = joinpath(ENV["LEVATAI_PATH"], pathcomp...)
 
