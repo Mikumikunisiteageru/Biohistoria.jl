@@ -1,5 +1,6 @@
 # example/levatai/fig2.jl
 
+using Dates
 using DelimitedFiles
 using GeologicTime    # 0.1.0
 using HypothesisTests # 0.11.0
@@ -171,4 +172,5 @@ ax0.text(0.103, 0.07+(0.72/235*130)-0.024, "(d)"; ha="left", va="center")
 ax0.text(0.250, 0.219, "(e)"; ha="right", va="center")
 ax0.text(0.567, 0.219, "(f)"; ha="right", va="center")
 
-savefig(file("fig2.pdf"))
+date = Dates.format(today(), "YYYYmmdd")
+savefig(file("Fig2_$date.pdf"))
