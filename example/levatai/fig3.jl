@@ -32,10 +32,21 @@ time, edm01 = readxy(file("Ages", "TaiwanEndemism_divergence_time", "0-1k_altitu
 qq = [sea, mag, temp, prec, dp, edm, edm34, edm23, edm12, edm01]
 
 k = 8 / 6.4
-close()
-figure(figsize=(6.4, 6.4k))
+dg = 0.11
+a = 0.09 - 0.5 * dg/k
+b = 0.09 + 3.5 * dg/k
+mult = 1 / (1+a-b)
+knew = k / mult
 
-function drawroute(ax, x, y; c=carex, sx=0.02, hx=0.03, rx=0.01, sy=0.02/k, hy=hx/k, ry=rx/k, kwargs...)
+dynew(dyold) = dyold * mult
+ynew(yold) = yold <= a ? dynew(yold) : 
+			 yold < b ? throw(DomainError(yold, "y coordinate in restricted range")) : 1 - dynew(1-yold)
+
+close()
+figure(figsize=(6.4, 6.4 * knew))
+
+function drawroute(ax, x, y; c=carex, sx=0.02, hx=0.03, rx=0.01, 
+		sy=ynew(0.02/k), hy=dynew(hx/k), ry=dynew(rx/k), kwargs...)
 	tt = LinRange(0, pi/2, 51)
 	xx = [sx; sx; 
 		x-hx-rx .+ (rx+2hx) .* cos.(reverse(tt)); 
@@ -49,15 +60,13 @@ function drawroute(ax, x, y; c=carex, sx=0.02, hx=0.03, rx=0.01, sy=0.02/k, hy=h
 		y-hy; y]
 	ax.fill(xx, yy; c=c, lw=0, kwargs...)
 end
-function drawroute(ax, y; c=carex, sx=0.02, tx=1-sx, hy=0.03/k, kwargs...)
+function drawroute(ax, y; c=carex, sx=0.02, tx=1-sx, hy=dynew(0.03/k), kwargs...)
 	xx = [sx, sx, tx, tx]
 	yy = [y-hy, y+hy, y+hy, y-hy]
 	ax.fill(xx, yy; c=c, lw=0, kwargs...)
 end
-dg = 0.11
 x = 0.54 .+ (0:3) .* dg
-y = [0.09+0dg/k, 0.09+dg/k, 0.09+2dg/k, 0.09+3dg/k, 
-	 0.09+4dg/k, 2\(1+dg/k), 
+y = [0.09+4dg/k, 2\(1+dg/k), 
 	 0.91-3dg/k, 0.91-2dg/k, 0.91-1dg/k, 0.91-0dg/k] |> reverse
 xa, xb = 0.25, 0.47
 dp = 0.05 + dg/k - 0.13
@@ -70,30 +79,28 @@ ax0.set_ylim(0, 1)
 ax0.set_axis_off()
 
 try
-	for i = 1:10
+	for i = 1:6
 		axx[i].remove()
 	end
 catch
-	global axx = Vector(undef, 10)
+	global axx = Vector(undef, 6)
 end
-for i = 1:10
+for i = 1:6
 	if i <= 4
-		drawroute(ax0, x[i], y[i])
+		drawroute(ax0, x[i], ynew(y[i]))
 	else
-		drawroute(ax0, y[i])
+		drawroute(ax0, ynew(y[i]))
 	end
-	# ax0.fill([xa, xb, xb, xa, xa], y[i] .+ [-0.04, -0.04, +0.04, +0.04, -0.04]; c=carex, ec="k", lw=0.0)
-	axx[i] = PyPlot.axes([xa, y[i]-0.04, xb-xa, 0.08])
+	axx[i] = PyPlot.axes([xa, ynew(y[i]-0.04), xb-xa, dynew(0.08)])
 	axx[i].plot(time, qq[i], "k"; lw = i <= 4 ? 0.5 : 0.8)
 	axx[i].set_xlim(2.6, 0)
 	axx[i].set_facecolor(carex)
-	# axx[i].set_axis_off()
 	axx[i].set_xticks([])
 	axx[i].set_yticks([])
 end
 
 try axr.remove() catch; end
-axr = PyPlot.axes([xa, 0.02, xb-xa, 0.03-dp])
+axr = PyPlot.axes([xa, ynew(0.02), xb-xa, dynew(0.03-dp)])
 axr.fill([0,0,1,1], [0,1,1,0]; c="k", lw=0)
 axr.fill([2,2,3,3], [0,1,1,0]; c="k", lw=0)
 axr.set_xlim([2.6, 0])
@@ -102,38 +109,33 @@ axr.set_xticks([])
 axr.set_yticks([])
 
 try axg.remove() catch; end
-axg = PyPlot.axes([xa, 0.95+dp, xb-xa, 0.03-dp])
+axg = PyPlot.axes([xa, ynew(0.95+dp), xb-xa, dynew(0.03-dp)])
 drawtimescale(axg, 2.6, 0, [4]; facealpha=1, texts = Dict("Pleistocene" => "Pleistocene"))
 
 function maketext(ax, i, line1)
-	ax.text(2\(0.02+xa), y[i], line1; ha="center", va="center")
+	ax.text(2\(0.02+xa), ynew(y[i]), line1; ha="center", va="center")
 end
 function maketext(ax, i, line1, line2)
-	ax.text(0.033, y[i] + 0.01, line1; ha="left", va="center")
-	ax.text(xa-0.013, y[i] - 0.01, line2; ha="right", va="center")
+	ax.text(0.033, ynew(y[i] + 0.01), line1; ha="left", va="center")
+	ax.text(xa-0.013, ynew(y[i] - 0.01), line2; ha="right", va="center")
 end
 maketext(ax0, 1, "Sea level")
 maketext(ax0, 2, "Soil magnetic", "susceptibility")
 maketext(ax0, 3, "Temperature")
 maketext(ax0, 4, "Precipitation")
 maketext(ax0, 5, "LAR, dispersed")
-maketext(ax0, 6, "LAR, endemic", "all-elevation")
-maketext(ax0, 7, "LAR, endemic", "3000–4000 m") # en dash "–"
-maketext(ax0, 8, "LAR, endemic", "2000–3000 m")
-maketext(ax0, 9, "LAR, endemic", "1000–2000 m")
-maketext(ax0, 10, "LAR, endemic", "0–1000 m")
-ax0.text(2\(0.02+xa), 0.965+2\dp, "Geologic Time"; ha="center", va="center")
-ax0.text(2\(0.02+xa), 0.035-2\dp, "Time (Ma)"; ha="center", va="center")
+maketext(ax0, 6, "LAR, endemic")
+ax0.text(2\(0.02+xa), ynew(0.965+2\dp), "Geologic Time"; ha="center", va="center")
+ax0.text(2\(0.02+xa), ynew(0.035-2\dp), "Time (Ma)"; ha="center", va="center")
 for (i, t) = zip(1:4, ["SL", "SMS", "T", "P"])
-	ax0.text(x[i], 0.035-2\dp, t; ha="center", va="center")
-	ax0.text(x[i] .- 0.01, y[i] .- 0.01/k, t; ha="center", va="center")
+	ax0.text(x[i], ynew(0.035-2\dp), t; ha="center", va="center")
+	ax0.text(x[i] .- 0.01, ynew(y[i] .- 0.01/k), t; ha="center", va="center")
 end
-for (i, t) = zip(5:10, ["D", "E", "E\$_{\\,34}\$", "E\$_{\\,23}\$", "E\$_{\\,12}\$", "E\$_{\\,01}\$"])
-	ax0.text(0.95, y[i], t; ha="center", va="center")
+for (i, t) = zip(5:16, ["D", "E"])
+	ax0.text(0.95, ynew(y[i]), t; ha="center", va="center")
 end
 
 cm = ColorMap("Spectral_r")
-# cm = ColorMap("RdBu_r")
 function tcwt(c)
 	ctest = RGBA(c...)
 	black = colorant"black"
@@ -145,8 +147,8 @@ function tcwt(c)
 	end
 end
 
-corrs = Matrix(undef, 10, 4)
-for i = 2:10
+corrs = Matrix(undef, 6, 4)
+for i = 2:6
 	for j = 1:4
 		j >= i && continue
 		r = cor(qq[i], qq[j])
@@ -155,8 +157,8 @@ for i = 2:10
 		@assert p < 0.001
 		c = cm(2 \ (1 + r))
 		tc, wt = tcwt(c)
-		ax0.fill(x[j] .+ [-0.045, -0.045, 0.045, 0.045], y[i] .+ [-0.045, 0.045, 0.045, -0.045] ./ k; lw=0.8, ec="k", c=c)
-		ax0.text(x[j], y[i], @sprintf("\$%+.3f\$", r); c=tc, ha="center", va="center", weight=wt)
+		ax0.fill(x[j] .+ [-0.045, -0.045, 0.045, 0.045], ynew.(y[i] .+ [-0.045, 0.045, 0.045, -0.045] ./ k); lw=0.8, ec="k", c=c)
+		ax0.text(x[j], ynew(y[i]), @sprintf("\$%+.3f\$", r); c=tc, ha="center", va="center", weight=wt)
 	end
 end
 
@@ -166,7 +168,7 @@ yl3 = 0.98
 yl2 = 0.95 + dp
 xl2 = xl3 - (yl3-yl2)*k
 yl1 = yl3 - (xl3-xl1)/k
-ax0.plot([xl2, xl3, xl3, xl2, xl2, xl1, xl1, xl2], [yl3, yl3, yl1, yl1, yl2, yl2, yl3, yl3], "k"; lw=0.8)
+ax0.plot([xl2, xl3, xl3, xl2, xl2, xl1, xl1, xl2], ynew.([yl3, yl3, yl1, yl1, yl2, yl2, yl3, yl3]), "k"; lw=0.8)
 yl4 = 0.951
 xl4 = xl2 - (yl2-yl4)*k
 xl5 = 0.9
@@ -174,10 +176,10 @@ yl5 = yl2 - (xl2-xl5)/k
 for r = 0:0.2:1
 	xl = r * xl1 + (1-r) * xl5
 	yl = r * yl1 + (1-r) * yl5
-	ax0.plot([xl4, xl2], [yl, yl], "k"; lw=0.8)
-	ax0.plot([xl, xl], [yl4, yl2], "k"; lw=0.8)
-	ax0.text(xl, 0.935, @sprintf("\$%+.1f\$", r); ha="center", va="center")
-	ax0.text(0.94-(0.98-xl3), yl, @sprintf("\$%-.1f\$", -r); ha="right", va="center")
+	ax0.plot([xl4, xl2], ynew.([yl, yl]), "k"; lw=0.8)
+	ax0.plot([xl, xl], ynew.([yl4, yl2]), "k"; lw=0.8)
+	ax0.text(xl, ynew(0.935), @sprintf("\$%+.1f\$", r); ha="center", va="center")
+	ax0.text(0.94-(0.98-xl3), ynew(yl), @sprintf("\$%-.1f\$", -r); ha="right", va="center")
 end
 
 n = 51
@@ -187,16 +189,16 @@ for (i, r) = enumerate(LinRange(0, 1, n))
 	larm[1, i, :] .= cm(2\(1+r))[1:3]
 	barm[i, 1, :] .= cm(2\(1-r))[1:3]
 end
-ax0.imshow(larm; extent = [xl5, xl1, yl2, yl3], aspect="auto", interpolation="none", zorder=1)
-ax0.imshow(barm; extent = [xl2, xl3, yl1, yl5], aspect="auto", interpolation="none", zorder=1)
-ax0.fill([xl5-0.05, xl5-0.05, xl3, xl3, xl2, xl2], [yl2, yl3, yl3, yl5-0.05, yl5-0.05, yl2]; c=cm(0.5), lw=0, zorder=-2)
+ax0.imshow(larm; extent = [xl5, xl1, ynew(yl2), ynew(yl3)], aspect="auto", interpolation="none", zorder=1)
+ax0.imshow(barm; extent = [xl2, xl3, ynew(yl1), ynew(yl5)], aspect="auto", interpolation="none", zorder=1)
+ax0.fill([xl5-0.05, xl5-0.05, xl3, xl3, xl2, xl2], ynew.([yl2, yl3, yl3, yl5-0.05, yl5-0.05, yl2]); c=cm(0.5), lw=0, zorder=-2)
 
-ax0.text(0.797, 0.895, "Pearson's"; ha="center", va="center")
-ax0.text(0.797, 0.875, "correlation"; ha="center", va="center")
-ax0.text(0.797, 0.855, "coefficient \$r\$"; ha="center", va="center")
+ax0.text(0.797, ynew(0.895), "Pearson's"; ha="center", va="center")
+ax0.text(0.797, ynew(0.875), "correlation"; ha="center", va="center")
+ax0.text(0.797, ynew(0.855), "coefficient \$r\$"; ha="center", va="center")
 
-ax0.text(0.797, 0.797, "\$p<0.001\$"; ha="center", va="center")
-ax0.text(0.797, 0.777, "for all"; ha="center", va="center")
+ax0.text(0.797, ynew(0.797), "\$p<0.001\$"; ha="center", va="center")
+ax0.text(0.797, ynew(0.777), "for all"; ha="center", va="center")
 
 date = Dates.format(today(), "YYYYmmdd")
 savefig(file("Fig3_$date.pdf"))
