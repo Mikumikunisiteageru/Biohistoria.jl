@@ -1,4 +1,4 @@
-# example/levatai/fig4.jl
+# example/levatai/figratiomath.jl
 
 using Dates          # 1.10.2
 using DelimitedFiles # 1.10.2
@@ -161,4 +161,4 @@ ax0.text(0.677, y0 - 3dy, raw"$H_{[a, b]}$: Average of LAR (Ma$^{-1}$)"; ha="lef
 ax0.text(0.820, 0.619, raw"$S_{[a, b]} = H_{[a, b]} \cdot |a-b|$"; ha="center", va="center")
 
 date = Dates.format(today(), "YYYYmmdd")
-savefig(file("Fig4_$date.pdf"))
+savefig(file("Fig_RatioMath_$date.pdf"))

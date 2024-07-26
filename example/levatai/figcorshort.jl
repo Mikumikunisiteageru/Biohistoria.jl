@@ -1,4 +1,4 @@
-# example/levatai/fig3.jl
+# example/levatai/figcorshort.jl
 
 using Colors          # 0.12.11
 using Dates           # 1.10.2
@@ -201,4 +201,4 @@ ax0.text(0.797, ynew(0.797), "\$p<0.001\$"; ha="center", va="center")
 ax0.text(0.797, ynew(0.777), "for all"; ha="center", va="center")
 
 date = Dates.format(today(), "YYYYmmdd")
-savefig(file("Fig3_$date.pdf"))
+savefig(file("Fig_CorShort_$date.pdf"))

@@ -1,4 +1,4 @@
-# example/levatai/fig2.jl
+# example/levatai/figmainlar.jl
 
 using Dates           # 1.10.2
 using DelimitedFiles  # 1.10.2
@@ -177,4 +177,4 @@ ax0.text(0.778, 0.167, "\$-60\$ m"; ha="center", va="center")
 ax0.fill([0.736, 0.736, 0.822, 0.822], [0.155, 0.184, 0.184, 0.155], "#66a7e6"; lw=0, alpha=0.3)
 
 date = Dates.format(today(), "YYYYmmdd")
-savefig(file("Fig2_$date.pdf"))
+savefig(file("Fig_MainLAR_$date.pdf"))
