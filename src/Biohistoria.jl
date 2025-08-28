@@ -12,9 +12,13 @@ struct Lineage
 	Lineage(distribution; kwargs...) = new(distribution, kwargs)
 end
 
-function lineage(data; 
-		old = convert(float(eltype(data)), Inf), now = zero(float(eltype(data))), kwargs...)
-	distribution = bound(smooth(sample(data)), now, old)
+function lineage(data; h = nothing, old = convert(float(eltype(data)), Inf), 
+		now = zero(float(eltype(data))), kwargs...)
+	if isnothing(h)
+		distribution = bound(smooth(sample(data)), now, old)
+	else
+		distribution = bound(smooth(sample(data), h), now, old)
+	end
 	return Lineage(distribution; kwargs...)
 end
 
